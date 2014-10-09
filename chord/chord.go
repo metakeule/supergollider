@@ -1,8 +1,8 @@
 package chord
 
 import (
-	"github.com/metakeule/music/note"
-	"github.com/metakeule/music/scale"
+	"github.com/metakeule/supergollider/note"
+	"github.com/metakeule/supergollider/scale"
 )
 
 // a Chord is a periodic scale but typically has less tones

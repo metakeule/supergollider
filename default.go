@@ -1,4 +1,4 @@
-package music
+package supergollider
 
 var DefaultStage = New()
 

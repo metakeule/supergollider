@@ -1,4 +1,4 @@
-package music
+package supergollider
 
 type bus int
 

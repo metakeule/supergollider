@@ -2,11 +2,11 @@
 // something is played
 package amp
 
-import "github.com/metakeule/music"
+import "github.com/metakeule/supergollider"
 
 type amp float64
 
-func (d amp) Params() map[string]float64 { return music.Amp(float64(d)).Params() }
+func (d amp) Params() map[string]float64 { return supergollider.Amp(float64(d)).Params() }
 
 var (
 	FFFF amp = 0.5

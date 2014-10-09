@@ -1,4 +1,4 @@
-package music
+package supergollider
 
 // Voice can only play one sound at a time
 

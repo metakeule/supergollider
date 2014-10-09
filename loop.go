@@ -1,4 +1,4 @@
-package music
+package supergollider
 
 func RepeatPattern(n int, loop Pattern) Pattern {
 	ls := make([]Pattern, n)

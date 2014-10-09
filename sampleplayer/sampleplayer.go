@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/metakeule/music"
+	"github.com/metakeule/supergollider"
 
-	"github.com/metakeule/music/dyn"
+	"github.com/metakeule/supergollider/dyn"
 
-	"github.com/metakeule/music/note"
+	"github.com/metakeule/supergollider/note"
 
 	"sort"
 )
@@ -161,9 +161,9 @@ func CalculatePhilharmonicFreq(s string) float64 {
 	return note.MidiCps(float64((i-4)*12) + float64(midiBase))
 }
 
-var Long = music.Dur(1000)
-var VeryLong = music.Dur(5000)
-var Phrase = music.Dur(10000)
+var Long = supergollider.Dur(1000)
+var VeryLong = supergollider.Dur(5000)
+var Phrase = supergollider.Dur(10000)
 
 func CalculatePhilharmonicDur(s string) float64 {
 	switch s {
@@ -191,7 +191,7 @@ func (d dynamic) Name() string   { return d.name }
 func (d dynamic) Value() float64 { return d.value }
 
 func (d dynamic) Params() map[string]float64 {
-	return music.Dyn(d.value).Params()
+	return supergollider.Dyn(d.value).Params()
 }
 
 var (
@@ -241,7 +241,7 @@ type variant struct {
 func (v variant) Name() string   { return v.name }
 func (v variant) Value() float64 { return v.value }
 func (v variant) Params() map[string]float64 {
-	return music.Param("variant", v.value).Params()
+	return supergollider.Param("variant", v.value).Params()
 }
 
 func newVariant(name string) variant {
@@ -481,7 +481,7 @@ func NewPhilharmonicScanner(baseDir string) *PhilharmonicScanner {
 	}
 }
 
-var _ music.SampleLibrary = &PhilharmonicScanner{}
+var _ supergollider.SampleLibrary = &PhilharmonicScanner{}
 
 func (p *PhilharmonicScanner) Channels() []int {
 	return []int{1, 2}

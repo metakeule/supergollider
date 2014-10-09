@@ -1,4 +1,4 @@
-package music
+package supergollider
 
 // the outer invoker may use the first voices instrument to query loadcode etc
 func newRoute(g generator, name, path string, numVoices int) []*Voice {

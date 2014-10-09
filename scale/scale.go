@@ -1,12 +1,10 @@
 package scale
 
-import (
-	"github.com/metakeule/music"
-	"github.com/metakeule/music/note"
-)
+import "github.com/metakeule/supergollider/note"
+import "github.com/metakeule/supergollider"
 
 type Scale interface {
-	Degree(degree int) music.Parameter
+	Degree(degree int) supergollider.Parameter
 	Base() note.Note
 }
 
@@ -39,7 +37,7 @@ type Chromatic struct {
 	A8 (a''''')           117
 */
 
-func (s *Chromatic) Degree(scalePosition int) music.Parameter {
+func (s *Chromatic) Degree(scalePosition int) supergollider.Parameter {
 	return note.Note(float64(s.BaseNote) + float64(scalePosition))
 	//return note.MidiCps(float64(s.BaseNote) + float64(scalePosition))
 }
@@ -59,7 +57,7 @@ func (s *Periodic) Base() note.Note {
 }
 
 // TODO: test it
-func (s *Periodic) Degree(scalePosition int) music.Parameter {
+func (s *Periodic) Degree(scalePosition int) supergollider.Parameter {
 	// we need to calculate the position in terms of the chromatic scale
 	// and then we return the frequency via MidiCps
 	num := len(s.Steps)
@@ -222,7 +220,7 @@ type seq struct {
 	current int
 }
 
-func (s *seq) Degree(degree int) music.Parameter {
+func (s *seq) Degree(degree int) supergollider.Parameter {
 	return s.Scales[s.current].Degree(degree)
 }
 
@@ -230,8 +228,8 @@ func (s *seq) Base() note.Note {
 	return s.Scales[s.current].Base()
 }
 
-func (s *seq) Next(pos string) music.Pattern {
-	return music.Exec(pos, func() {
+func (s *seq) Next(pos string) supergollider.Pattern {
+	return supergollider.Exec(pos, func() {
 		if len(s.Scales)-1 <= s.current {
 			s.current = 0
 			return
@@ -240,14 +238,14 @@ func (s *seq) Next(pos string) music.Pattern {
 	})
 }
 
-func (s *seq) Set(pos string, index int) music.Pattern {
+func (s *seq) Set(pos string, index int) supergollider.Pattern {
 	if index < 0 {
 		panic("index < 0 not allowed")
 	}
 	if len(s.Scales)-1 <= index {
 		panic("index larger than len(Scales)-1")
 	}
-	return music.Exec(pos, func() { s.current = index })
+	return supergollider.Exec(pos, func() { s.current = index })
 }
 
 func Seq(scales ...Scale) *seq {

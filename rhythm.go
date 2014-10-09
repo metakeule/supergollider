@@ -1,4 +1,4 @@
-package music
+package supergollider
 
 type rhythm struct {
 	positions      []string

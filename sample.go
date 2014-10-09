@@ -1,4 +1,4 @@
-package music
+package supergollider
 
 import (
 	"encoding/json"
