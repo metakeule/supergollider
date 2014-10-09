@@ -42,7 +42,7 @@ func TestLinearDistributedValues(t *testing.T) {
 	for in, out := range corpus {
 		width, diff := LinearDistributedValues(in.from, in.to, in.steps, in.dur)
 		if width != out.width {
-			t.Errorf("width is %f, but should be %f", width, out.width)
+			t.Errorf("width is %v, but should be %v", width, out.width)
 		}
 		if diff != out.diff {
 			t.Errorf("diff is %f, but should be %f", diff, out.diff)

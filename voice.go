@@ -453,7 +453,7 @@ func (v *Voice) getCode(ev *Event) string {
 	case "OFF":
 		// v.lastSampleFrequency = 0
 
-		if ev.reference.synthID == 0 {
+		if ev.reference == nil || ev.reference.synthID == 0 {
 			return ""
 		}
 
