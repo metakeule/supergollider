@@ -1,3 +1,4 @@
+// Package amp provides shortcuts for midi notes and their frequencies
 package note
 
 import "math"

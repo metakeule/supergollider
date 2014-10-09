@@ -1,3 +1,4 @@
+// Package scale provides shortcuts for chromatic and periodic (diatonic) scales
 package scale
 
 import "github.com/metakeule/supergollider/note"

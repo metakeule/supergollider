@@ -1,3 +1,4 @@
+// Package chord provides shortcuts for chords
 package chord
 
 import (

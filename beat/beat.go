@@ -1,3 +1,4 @@
+// Package beat provides shortcuts for beat positions within a bar
 package beat
 
 const (

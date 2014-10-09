@@ -1,3 +1,4 @@
+// Package sampleplayer provides an instrument based on different samples for different frequencies and dynamics
 package sampleplayer
 
 import (
