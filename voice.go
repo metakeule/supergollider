@@ -131,8 +131,10 @@ func EventFuncPattern(pos string, fn func(e *Event)) Pattern {
 }
 */
 func (e *exec_) Events(barNum int, t Tracker) map[Measure][]*Event {
+	// fmt.Println("call func")
 	ev := e.fn()
 	ev.Voice = e.voice
+	// fmt.Printf("setting ev %p voice %p\n", ev, ev.Voice)
 	return map[Measure][]*Event{e.pos: []*Event{ev}}
 }
 
@@ -524,6 +526,10 @@ func (v *Voice) getCode(ev *Event) string {
 }
 
 func (v *Voice) OnEvent(ev *Event) {
+	// fmt.Printf("OnEvent for event %p voice %p (self: %p)\n", ev, ev.Voice, v)
+	if v == nil && ev.Voice != nil {
+		v = ev.Voice
+	}
 
 	if _, isBus := v.instrument.(*bus); isBus {
 		panic("On not supported for busses")
@@ -637,6 +643,9 @@ func (v *Voice) OnEvent(ev *Event) {
 }
 
 func (v *Voice) ChangeEvent(ev *Event) {
+	if v == nil && ev.Voice != nil {
+		v = ev.Voice
+	}
 
 	params := ev.Params.Params()
 
@@ -725,6 +734,10 @@ func (v *Voice) ChangeEvent(ev *Event) {
 }
 
 func (v *Voice) OffEvent(ev *Event) {
+	if v == nil && ev.Voice != nil {
+		v = ev.Voice
+	}
+
 	if _, isBus := v.instrument.(*bus); isBus {
 		panic("Off not supported for busses")
 	}
