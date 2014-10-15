@@ -413,22 +413,23 @@ func (v *Voice) getCode(ev *Event) string {
 		v.mute = false
 	case "ON":
 		var bf bytes.Buffer
-		// oldNode := v.scnode
-		// _, isSample := v.instrument.(*sCSample)
-		// _, isSampleInstrument := v.instrument.(*sCSampleInstrument)
-
 		/*
+			oldNode := v.scnode
+			_, isSample := v.instrument.(*sCSample)
+			_, isSampleInstrument := v.instrument.(*sCSampleInstrument)
+
 			if oldNode != 0 && oldNode > 2000 {
 				if isSample || isSampleInstrument {
 					// is freed automatically
 					fmt.Fprintf(&bf, `, [\n_set, %d, \gate, -1]`, oldNode)
 				} else {
-					fmt.Fprintf(&bf, `, [\n_free, %d]`, oldNode)
+					// fmt.Fprintf(&bf, `, [\n_free, %d]`, oldNode)
 				}
 				// if oldNode != 0 {
 				// fmt.Fprintf(&bf, `, [\n_free, %d]`, oldNode)
 			}
 		*/
+
 		/*
 			if isSample || isSampleInstrument {
 				v.lastSampleFrequency = ev.sampleInstrumentFrequency
@@ -751,7 +752,8 @@ func (v *Voice) OffEvent(ev *Event) {
 
 	// v.lastInstrumentSample = nil
 	//fmt.Fprintf(&ev.sccode, `, [\n_set, %d, \gate, -1]`, v.scnode)
-	fmt.Fprintf(&ev.sccode, `, [\n_set, ##NODE##, \gate, -1]`)
+	//fmt.Fprintf(&ev.sccode, `, [\n_set, ##NODE##, \gate, -1]`)
+	fmt.Fprintf(&ev.sccode, `, [\n_set, ##NODE##, \gate, 0]`)
 }
 
 type codeLoader interface {

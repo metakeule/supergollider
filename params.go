@@ -188,6 +188,18 @@ func Param(name string, value float64) Parameter {
 	return param{name, value}
 }
 
+type Attack float64
+
+func (f Attack) Params() map[string]float64 {
+	return map[string]float64{"attack": float64(f)}
+}
+
+type Release float64
+
+func (f Release) Params() map[string]float64 {
+	return map[string]float64{"release": float64(f)}
+}
+
 type Freq float64
 
 func (f Freq) Params() map[string]float64 {

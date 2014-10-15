@@ -168,8 +168,11 @@ func (s *Stage) writeSynthDefs(w io.Writer) {
 	}
 }
 
-var sampleSynthDef = `SynthDef("sample%d", { |gate=1,bufnum = 0,amp=1, out=0, pan=0, rate=1| var z;
-	z =  EnvGen.kr(Env.perc,gate) * PlayBuf.ar(%d, bufnum, BufRateScale.kr(bufnum) * rate, loop: 0, doneAction: 2);
+// Out.ar(out, Pan2.ar(z, pos: pan, level: amp));
+// z =  EnvGen.kr(Env.adsr(attac,release,1),gate) * PlayBuf.ar(%d, bufnum, BufRateScale.kr(bufnum) * rate, loop: 0, doneAction: 2);
+
+var sampleSynthDef = `SynthDef("sample%d", { |attac=0.0000005, release=0.0000005, gate=1,bufnum = 0,amp=1, out=0, pan=0, rate=1| var z;
+	z =  EnvGen.kr(Env([0, 1, 0], [attac,release],\linear, releaseNode: 1),gate) * PlayBuf.ar(%d, bufnum, BufRateScale.kr(bufnum) * rate, loop: 0, doneAction: 2);
 	FreeSelfWhenDone.kr(z);
 	Out.ar(out, Pan2.ar(z, pos: pan, level: amp));
 } ).writeDefFile;`
