@@ -255,7 +255,7 @@ func (t *Track) print(tempo Tempo, unit string, wr io.Writer) {
 	for _, voc := range sortVoic {
 		evts := voiceLines[voc]
 		tick := int(0)
-		placeholder := " "
+		placeholder := "  "
 		sortedTickKeys := []int{}
 
 		for t := range evts {
@@ -278,13 +278,14 @@ func (t *Track) print(tempo Tempo, unit string, wr io.Writer) {
 			}
 			if d > 0 {
 				for i := 0; i < d; i++ {
-					if placeholder == "-" && i == 0 {
+					if placeholder == "--" && i == 0 {
 						continue
 					}
 					//				if placeholder == " " {
 					//				fmt.Fprint(wr, placeholder+placeholder+placeholder)
 					//		} else {
-					fmt.Fprint(wr, placeholder+placeholder)
+					//fmt.Fprint(wr, placeholder+placeholder)
+					fmt.Fprint(wr, placeholder)
 					//	}
 					// fmt.Print(placeholder)
 				}
@@ -295,13 +296,13 @@ func (t *Track) print(tempo Tempo, unit string, wr io.Writer) {
 			case "ON":
 				//fmt.Print("<")
 
-				fmt.Fprintf(wr, "%v-", note.FreqToNote(ev.Params.Params()["freq"]))
+				fmt.Fprintf(wr, "%v", note.FreqToNote(ev.Params.Params()["freq"]))
 				// fmt.Print(ev.FinalParams()["note"])
-				placeholder = "-"
+				placeholder = "--"
 			case "OFF":
 				// fmt.Fprint(wr, "|")
 				// fmt.Print("|")
-				placeholder = " "
+				placeholder = "  "
 			case "CHANGE":
 				fmt.Fprint(wr, "##")
 				fmt.Fprint(wr, placeholder)

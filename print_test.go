@@ -42,7 +42,7 @@ func TestPrintOneNote(t *testing.T) {
 	//	tr.Print(200000000, &bf)
 	tr.Print(bpm120, "1/8", &bf)
 
-	res := "1: A6-------\n"
+	res := "1: A6------\n"
 
 	if bf.String() != res {
 		t.Errorf("wrong res, expected: %#v, got: %#v", res, bf.String())
@@ -50,7 +50,7 @@ func TestPrintOneNote(t *testing.T) {
 
 	bf.Reset()
 	tr.Print(bpm120, "1/4", &bf)
-	res = "1: A6---\n"
+	res = "1: A6--\n"
 
 	if bf.String() != res {
 		t.Errorf("wrong res, expected: %#v, got: %#v", res, bf.String())
@@ -68,8 +68,8 @@ func TestPrintPolyOneNote(t *testing.T) {
 	tr.Print(bpm120, "1/8", &bf)
 
 	res := "" +
-		"1: A6-------\n" +
-		"2: C7-------\n"
+		"1: A6------\n" +
+		"2: C7------\n"
 
 	if bf.String() != res {
 		t.Errorf("wrong res, expected: %#v, got: %#v", res, bf.String())
@@ -91,9 +91,9 @@ func TestPrintMulti(t *testing.T) {
 
 	res := "1: " +
 		"        " +
-		"A6-------" +
+		"A6------" +
 		"        " +
-		"C7-------" +
+		"C7------" +
 		"\n"
 
 	if bf.String() != res {
@@ -119,8 +119,8 @@ func TestPrintPolyMultiParallel(t *testing.T) {
 	tr.Print(bpm120, "1/8", &bf)
 
 	res := "" +
-		"1: A6-------        D6-------\n" +
-		"2: C7-------        B7-------\n"
+		"1: A6------        D6------\n" +
+		"2: C7------        B7------\n"
 
 	if bf.String() != res {
 		t.Errorf("wrong res, expected: %#v, got: %#v", res, bf.String())
@@ -138,7 +138,7 @@ func TestPrintEach(t *testing.T) {
 	tr.Print(bpm120, "1/8", &bf)
 	_ = tr
 
-	res := "1: C2-  C2-  C2-  C2-  C2-  C2-  C2-  C2-  C2-  C2-  C2-  C2-  C2-  C2-  C2-  C2-\n"
+	res := "1: C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2\n"
 
 	if bf.String() != res {
 		t.Errorf("expected: %#v, got: %#v", res, bf.String())
@@ -172,8 +172,8 @@ func TestPrintPolyPhon(t *testing.T) {
 	tr.Print(bpm120, "1/16", &bf)
 
 	res := "" +
-		"1: C8-------        C7-------        C8-------        C7---    C8---    C7---" + "\n" +
-		"2: C6---------------        C1-------        C2---------------    C6---" + "\n"
+		"1: C8------        C7------        C8------        C7--    C8--    C7--" + "\n" +
+		"2: C6--------------        C1------        C2--------------    C6--" + "\n"
 
 	if bf.String() != res {
 		t.Errorf("wrong res, expected: %#v, got: %#v", res, bf.String())
