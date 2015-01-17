@@ -136,10 +136,7 @@ type setBpm struct {
 func (s *setBpm) Events(barNum int, t Tracker) map[Measure][]*Event {
 	return map[Measure][]*Event{
 		s.pos: []*Event{
-			&Event{
-				Params: Param("bpm", s.bpm),
-				type_:  "TEMPO_CHANGE",
-			},
+			BPM(s.bpm).Event(),
 		},
 	}
 }

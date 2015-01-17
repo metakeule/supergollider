@@ -35,6 +35,13 @@ type Tempo interface {
 
 type BPM float64
 
+func (b BPM) Event() *Event {
+	return &Event{
+		Params: Param("bpm", float64(b)),
+		type_:  "TEMPO_CHANGE",
+	}
+}
+
 func (b BPM) BPM() float64 {
 	return float64(b)
 }

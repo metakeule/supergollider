@@ -21,7 +21,6 @@ var bpm120 = BPM(120)
 
 func TestPrintEmpty(t *testing.T) {
 	tr := &Track{}
-	tr.compile()
 	var bf bytes.Buffer
 	tr.Print(BPM(120), "1/4", &bf)
 
@@ -36,7 +35,6 @@ func TestPrintOneNote(t *testing.T) {
 	tr := newTrack(bpm120, M("4/4"))
 	tr.At(M("0/4"), OnEvent(v1, note.A6))
 	tr.At(M("2/4"), OffEvent(v1))
-	tr.compile()
 
 	var bf bytes.Buffer
 	//	tr.Print(200000000, &bf)
@@ -63,7 +61,6 @@ func TestPrintPolyOneNote(t *testing.T) {
 	tr.At(M("0/4"), OnEvent(v2, note.C7))
 	tr.At(M("2/4"), OffEvent(v1))
 	tr.At(M("2/4"), OffEvent(v2))
-	tr.compile()
 	var bf bytes.Buffer
 	tr.Print(bpm120, "1/8", &bf)
 
@@ -83,7 +80,6 @@ func TestPrintMulti(t *testing.T) {
 	tr.At(M("4/4"), OffEvent(v1))
 	tr.At(M("6/4"), OnEvent(v1, note.C7))
 	tr.At(M("8/4"), OffEvent(v1))
-	tr.compile()
 
 	var bf bytes.Buffer
 
@@ -112,7 +108,6 @@ func TestPrintPolyMultiParallel(t *testing.T) {
 	tr.At(M("4/4"), OnEvent(v2, note.B7))
 	tr.At(M("6/4"), OffEvent(v1))
 	tr.At(M("6/4"), OffEvent(v2))
-	tr.compile()
 
 	var bf bytes.Buffer
 
@@ -133,7 +128,6 @@ func TestPrintEach(t *testing.T) {
 	tr.Start()
 	tr.Fill(3)
 
-	tr.compile()
 	var bf bytes.Buffer
 	tr.Print(bpm120, "1/8", &bf)
 	_ = tr
@@ -157,7 +151,8 @@ func TestPrintPolyPhon(t *testing.T) {
 	tr.At(M("0"), OnEvent(v1, note.C8), OffEvent(v2))
 	tr.At(M("1/4"), OffEvent(v1), OnEvent(v2, note.C2))
 	tr.At(M("2/4"), OnEvent(v1, note.C7))
-	tr.SetTempo(M("2/4"), BPM(240))
+	tr.At(M("2/4"), BPM(240).Event())
+
 	tr.At(M("3/4"), OffEvent(v1))
 	tr.nextBar()
 	tr.At(M("0"), OnEvent(v1, note.C8))
@@ -165,7 +160,6 @@ func TestPrintPolyPhon(t *testing.T) {
 	tr.At(M("1/4"), OnEvent(v2, note.C6), OffEvent(v1))
 	tr.At(M("2/4"), OnEvent(v1, note.C7), OffEvent(v2))
 	tr.At(M("3/4"), OffEvent(v1))
-	tr.compile()
 
 	var bf bytes.Buffer
 

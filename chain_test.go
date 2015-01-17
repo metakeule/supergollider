@@ -19,7 +19,8 @@ func TestChain(t *testing.T) {
 		t.Errorf("expecting 500000000, got %v", tr.Events[1].tick)
 	}
 
-	tr.SetTempo(M("0"), BPM(240))
+	tr.At(M("0"), BPM(240).Event())
+	// tr.SetTempo(M("0"), BPM(240))
 	tr.compile()
 
 	if tr.Events[1].tick != 250000000 {
@@ -33,7 +34,9 @@ func TestAtSeq(t *testing.T) {
 	tr.Start()
 	tr.At(M("0"), OnEvent(v1, note.A2))
 	tr.At(M("1/4"), OffEvent(v1))
-	tr.SetTempo(M("2/4"), BPM(240))
+	// tr.At(M("2/4"), SetBPM(240))
+	tr.At(M("2/4"), BPM(240).Event())
+	// tr.SetTempo(M("2/4"), BPM(240))
 	tr.At(M("2/4"), OnEvent(v1, note.A2))
 	tr.At(M("3/4"), OffEvent(v1))
 	tr.nextBar()
@@ -50,20 +53,20 @@ func TestAtSeq(t *testing.T) {
 		t.Errorf("expecting 500000000, got %v", tr.Events[1].tick)
 	}
 
-	if tr.Events[2].tick != 1000000000 {
-		t.Errorf("expecting 1000000000, got %v", tr.Events[2].tick)
+	if tr.Events[3].tick != 1000000000 {
+		t.Errorf("expecting 1000000000, got %v", tr.Events[3].tick)
 	}
 
-	if tr.Events[3].tick != 1250000000 {
-		t.Errorf("expecting 1250000000, got %v", tr.Events[3].tick)
+	if tr.Events[4].tick != 1250000000 {
+		t.Errorf("expecting 1250000000, got %v", tr.Events[4].tick)
 	}
 
-	if tr.Events[4].tick != 1500000000 {
-		t.Errorf("expecting 1500000000, got %v", tr.Events[4].tick)
+	if tr.Events[5].tick != 1500000000 {
+		t.Errorf("expecting 1500000000, got %v", tr.Events[5].tick)
 	}
 
-	if tr.Events[5].tick != 1750000000 {
-		t.Errorf("expecting 1750000000, got %v", tr.Events[5].tick)
+	if tr.Events[6].tick != 1750000000 {
+		t.Errorf("expecting 1750000000, got %v", tr.Events[6].tick)
 	}
 }
 

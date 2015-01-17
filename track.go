@@ -15,9 +15,9 @@ type Tracker interface {
 		TempoAt(abspos Measure) Tempo
 	*/
 	At(pos Measure, events ...*Event)
-	TempoAt(abspos Measure) Tempo
+	// TempoAt(abspos Measure) Tempo
 	CurrentBar() Measure
-	SetTempo(pos Measure, tempo Tempo)
+	// SetTempo(pos Measure, tempo Tempo)
 	/*
 		MixPatterns(tf ...Pattern)
 		CurrentBar() Measure
@@ -247,7 +247,9 @@ func (t *Track) print(tempo Tempo, unit string, wr io.Writer) {
 	// sort to have always the same print order
 	sortVoic := sortedVoices{}
 	for voc, _ := range voiceLines {
-		sortVoic = append(sortVoic, voc)
+		if voc != nil {
+			sortVoic = append(sortVoic, voc)
+		}
 	}
 
 	sort.Sort(sortVoic)
@@ -390,13 +392,15 @@ func (t *Track) BarNum() int {
 }
 
 //func (t *Track) TempoAt(pos string, tempo Tempo) {
-func (t *Track) SetTempo(pos Measure, tempo Tempo) {
+/*
+func (t *Track) setTempo(pos Measure, tempo Tempo) {
 	num, posInLast := t.CurrentBar().Add(pos)
 	abs := t.absPos + Measure(num)*t.CurrentBar() + posInLast
 	tempAt := tempoAt{AbsPos: abs, Tempo: tempo}
-	// fmt.Printf("set tempo to: %v at %v\n", tempo, tempAt.AbsPos)
+	fmt.Printf("set tempo to: %v at %v\n", tempo, tempAt.AbsPos)
 	t.tempi = append(t.tempi, tempAt)
 }
+*/
 
 func (t *Track) At(pos Measure, events ...*Event) {
 	num, posInLast := t.CurrentBar().Add(pos)
@@ -410,6 +414,7 @@ func (t *Track) At(pos Measure, events ...*Event) {
 	}
 }
 
+/*
 // tempoAt returns the Tempo at the given barnum and barposition
 // t.Tempi must be sorted before this method is called
 // If a tempo was set at the given point in time, this tempo is returned.
@@ -436,11 +441,13 @@ func (t *Track) TempoAt(abspos Measure) Tempo {
 
 	panic("no tempo found")
 }
+*/
 
 func (t *Track) MixPatterns(patterns ...Pattern) {
+	// fmt.Printf("MixPatterns called: %d\n", len(patterns))
 	// stops := map[*TrackLoop]Measure{}
 	for _, pattern := range patterns {
-
+		// fmt.Printf("MixPatterns called: %T\n", pattern)
 		switch x := pattern.(type) {
 		case *TrackLoopStart:
 			t.addLoop(x)
@@ -475,14 +482,16 @@ func (t *Track) MixPatterns(patterns ...Pattern) {
 			for pos, events := range pattern.Events(i, t) {
 
 				for _, ev := range events {
-					if ev.type_ == "TEMPO_CHANGE" {
-						bpm := ev.Params.Params()["bpm"]
-						t.SetTempo(pos, BPM(bpm))
-					} else {
-						t.At(t.CurrentBar()*Measure(i)+pos, ev)
-					}
+					/*
+						fmt.Printf("event type: %s\n", ev.type_)
+						if ev.type_ == "TEMPO_CHANGE" {
+							bpm := ev.Params.Params()["bpm"]
+							t.setTempo(pos, BPM(bpm))
+						} else {
+					*/
+					t.At(t.CurrentBar()*Measure(i)+pos, ev)
+					// }
 				}
-
 			}
 		}
 	}
@@ -542,6 +551,17 @@ func (t *Track) compile() {
 
 	tempoChanges := map[Measure]Tempo{}
 
+	for _, ev := range t.Events {
+		// fmt.Printf("event type: %s\n", ev.type_)
+		if ev.type_ == "TEMPO_CHANGE" {
+			bpm := ev.Params.Params()["bpm"]
+			tempAt := tempoAt{AbsPos: ev.absPosition, Tempo: BPM(bpm)}
+			// fmt.Printf("set tempo to: %v at %v\n", BPM(bpm), tempAt.AbsPos)
+			t.tempi = append(t.tempi, tempAt)
+			// t.setTempo(ev.absPosition, BPM(bpm))
+		}
+	}
+
 	for _, tm := range t.tempi {
 		tempoChanges[tm.AbsPos] = tm.Tempo
 	}
@@ -549,8 +569,10 @@ func (t *Track) compile() {
 	events := map[Measure][]*Event{}
 
 	for _, ev := range t.Events {
-		//fmt.Println("AbsPosition", ev.AbsPosition)
-		events[ev.absPosition] = append(events[ev.absPosition], ev)
+		if ev.type_ != "TEMPO_CHANGE" {
+			//fmt.Println("AbsPosition", ev.AbsPosition)
+			events[ev.absPosition] = append(events[ev.absPosition], ev)
+		}
 	}
 
 	//	prevTempoNum := 0

@@ -246,6 +246,7 @@ func RandomPattern(patterns ...Pattern) Pattern {
 }
 
 type tempoSpan struct {
+	start    float64
 	current  float64
 	step     float64
 	modifier func(current, step float64) float64
@@ -261,6 +262,20 @@ func (ts *tempoSpan) SetTempo(pos string) Pattern {
 	return &tempoSpanTrafo{ts, pos}
 }
 
+func (ts *tempoSpan) Reset(pos string) Pattern {
+	fn := func(barNum int, tr Tracker) map[Measure][]*Event {
+		ts.current = ts.start
+		return SetBPM(pos, ts.current).Events(barNum, tr)
+	}
+	return PatternFunc(fn)
+	/*
+		return EventFuncPattern(pos, func(e *Event) {
+			// fmt.Printf("resetting\n")
+			ts.current = ts.start
+		})
+	*/
+}
+
 func (ts *tempoSpanTrafo) NumBars() int {
 	return 1
 }
@@ -269,20 +284,35 @@ func (ts *tempoSpanTrafo) NumBars() int {
 // special Event type that has a method that receives a *Track and may act upon it
 // that must be somehow integrated to the tracker methods
 func (ts *tempoSpanTrafo) Events(barNum int, t Tracker) (res map[Measure][]*Event) {
-	var newtempo float64
-	if ts.current == -1 {
-		//newtempo = ts.modifier(ts.t.TempoAt(M(ts.pos)).BPM(), ts.step)
-		newtempo = ts.modifier(t.TempoAt(M(ts.pos)).BPM(), ts.step)
-	} else {
-		ts.current = ts.modifier(ts.current, ts.step)
-		newtempo = ts.current
-	}
-	//rounded := RoundFloat(newtempo, 4)
-	//ts.t.SetTempo(M(ts.pos), BPM(newtempo))
-	t.SetTempo(M(ts.pos), BPM(newtempo))
-	return nil
+	// var newtempo float64
+	ts.current = ts.modifier(ts.current, ts.step)
+	return SetBPM(ts.pos, ts.current).Events(barNum, t)
+	/*
+		return map[Measure][]*Event{
+			M(ts.pos): {SetBPM(pos, )},
+		}
+	*/
+	/*
+		if ts.current == -1 {
+			//newtempo = ts.modifier(ts.t.TempoAt(M(ts.pos)).BPM(), ts.step)
+			newtempo = ts.modifier(t.TempoAt(M(ts.pos)).BPM(), ts.step)
+		} else {
+			ts.current = ts.modifier(ts.current, ts.step)
+			newtempo = ts.current
+		}
+		//rounded := RoundFloat(newtempo, 4)
+		//ts.t.SetTempo(M(ts.pos), BPM(newtempo))
+		t.SetTempo(M(ts.pos), BPM(newtempo))
+	*/
+	// return nil
 }
 
+/*
+func TempoSpan(step float64, modifier func(current, step float64) float64) *tempoSpanTrafo {
+	ts := &tempoSpan{current: 0, step: step, modifier: modifier}
+
+}
+*/
 /*
 // Tracker must be a *Track
 func (ts *tempoSpanTrafo) Pattern(t Tracker) {
@@ -308,7 +338,7 @@ func StepMultiply(current, step float64) float64 {
 
 // for start = -1 takes the current tempo
 func SeqTempo(start float64, step float64, modifier func(current, step float64) float64) *tempoSpan {
-	return &tempoSpan{current: start, step: step, modifier: modifier}
+	return &tempoSpan{start: start, current: start, step: step, modifier: modifier}
 }
 
 type seqBool struct {
@@ -409,13 +439,41 @@ type linearDistribute struct {
 	// from, to float64, steps int, dur Measure
 }
 
+type linearTempoLine struct {
+	*linearDistribute
+}
+
+func LinearTempoChange(from, to float64, n int, dur Measure) *linearTempoLine {
+	return &linearTempoLine{LinearDistribution("bpm", from, to, n, dur)}
+}
+
+func (l *linearTempoLine) ModifyTempo(position string) Pattern {
+	return l.modifyTempo(position)
+}
+
 // LinearDistribution creates a transformer that modifies the given parameter param
 // from the value from to the value to in n steps in linear growth for a total duration dur
 func LinearDistribution(param string, from, to float64, n int, dur Measure) *linearDistribute {
 	return &linearDistribute{from, to, n, dur, param}
 }
 
-func (l *linearDistribute) ModifyDistributed(position string, v *Voice) Pattern {
+func (l *linearDistribute) modifyTempo(position string) Pattern {
+	p := []Pattern{}
+	width, diff := LinearDistributedValues(l.from, l.to, l.steps, l.dur)
+	val := l.from
+	pos := M(position)
+	for i := 0; i < l.steps; i++ {
+		// println(pos.String())
+		p = append(p, &setBpm{pos, val})
+		// tr.At(pos, ChangeEvent(ld.v, ParamsMap(map[string]float64{ld.linearDistribute.key: val})))
+		pos += width
+		val += diff
+	}
+
+	return MixPatterns(p...)
+}
+
+func (l *linearDistribute) ModifyVoice(position string, v *Voice) Pattern {
 	//return &linearDistributeTrafo{l, v, M(position)}
 	p := []Pattern{}
 	width, diff := LinearDistributedValues(l.from, l.to, l.steps, l.dur)
@@ -471,7 +529,7 @@ func ExponentialDistribution(param string, from, to float64, n int, dur Measure)
 	return &expDistribute{from, to, n, dur, param}
 }
 
-func (l *expDistribute) ModifyDistributed(position string, v *Voice) Pattern {
+func (l *expDistribute) ModifyVoice(position string, v *Voice) Pattern {
 	p := []Pattern{}
 	width, diffs := ExponentialDistributedValues(l.from, l.to, l.steps, l.dur)
 	// tr.At(ld.pos, Change(ld.v, ))
@@ -484,6 +542,33 @@ func (l *expDistribute) ModifyDistributed(position string, v *Voice) Pattern {
 	}
 	//return &expDistributeTrafo{l, v, M(position)}
 	return MixPatterns(p...)
+}
+
+func (l *expDistribute) modifyTempo(position string) Pattern {
+	p := []Pattern{}
+	width, diffs := ExponentialDistributedValues(l.from, l.to, l.steps, l.dur)
+	pos := M(position)
+	for i := 0; i < l.steps; i++ {
+		// println(pos.String())
+		p = append(p, &setBpm{pos, diffs[i]})
+		// tr.At(pos, ChangeEvent(ld.v, ParamsMap(map[string]float64{ld.linearDistribute.key: val})))
+		pos += width
+		// val += diff
+	}
+
+	return MixPatterns(p...)
+}
+
+type expTempoLine struct {
+	*expDistribute
+}
+
+func ExponentialTempoChange(from, to float64, n int, dur Measure) *expTempoLine {
+	return &expTempoLine{ExponentialDistribution("bpm", from, to, n, dur)}
+}
+
+func (l *expTempoLine) ModifyTempo(position string) Pattern {
+	return l.modifyTempo(position)
 }
 
 type expDistributeTrafo struct {
