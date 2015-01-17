@@ -265,7 +265,7 @@ func (ts *tempoSpan) SetTempo(pos string) Pattern {
 func (ts *tempoSpan) Reset(pos string) Pattern {
 	fn := func(barNum int, tr Tracker) map[Measure][]*Event {
 		ts.current = ts.start
-		return SetBPM(pos, ts.current).Events(barNum, tr)
+		return BPM(ts.current).Pattern(pos).Events(barNum, tr)
 	}
 	return PatternFunc(fn)
 	/*
@@ -286,7 +286,7 @@ func (ts *tempoSpanTrafo) NumBars() int {
 func (ts *tempoSpanTrafo) Events(barNum int, t Tracker) (res map[Measure][]*Event) {
 	// var newtempo float64
 	ts.current = ts.modifier(ts.current, ts.step)
-	return SetBPM(ts.pos, ts.current).Events(barNum, t)
+	return BPM(ts.current).Pattern(ts.pos).Events(barNum, t)
 	/*
 		return map[Measure][]*Event{
 			M(ts.pos): {SetBPM(pos, )},

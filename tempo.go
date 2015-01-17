@@ -42,6 +42,27 @@ func (b BPM) Event() *Event {
 	}
 }
 
+type setBpm struct {
+	pos Measure
+	bpm float64
+}
+
+func (s *setBpm) Events(barNum int, t Tracker) map[Measure][]*Event {
+	return map[Measure][]*Event{
+		s.pos: []*Event{
+			BPM(s.bpm).Event(),
+		},
+	}
+}
+
+func (s *setBpm) NumBars() int {
+	return 1
+}
+
+func (b BPM) Pattern(pos string) Pattern {
+	return &setBpm{M(pos), float64(b)}
+}
+
 func (b BPM) BPM() float64 {
 	return float64(b)
 }

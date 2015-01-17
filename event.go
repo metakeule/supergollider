@@ -128,27 +128,6 @@ func CustomEvent(fn func(*Event)) *Event {
 	}
 }
 
-type setBpm struct {
-	pos Measure
-	bpm float64
-}
-
-func (s *setBpm) Events(barNum int, t Tracker) map[Measure][]*Event {
-	return map[Measure][]*Event{
-		s.pos: []*Event{
-			BPM(s.bpm).Event(),
-		},
-	}
-}
-
-func (s *setBpm) NumBars() int {
-	return 1
-}
-
-func SetBPM(pos string, bpm float64) *setBpm {
-	return &setBpm{M(pos), bpm}
-}
-
 type EventGenerator func(v *Voice, params ...Parameter) *Event
 
 // returns a Pattern for an event func at a certain position
