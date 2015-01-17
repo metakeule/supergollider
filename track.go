@@ -2,6 +2,7 @@ package supergollider
 
 import (
 	"fmt"
+	"github.com/metakeule/supergollider/note"
 	"io"
 	"runtime/debug"
 	"sort"
@@ -194,6 +195,30 @@ func (t *Track) changeBar(newBar Measure) {
 
 }
 
+type sortedVoices []*Voice
+
+// Len is part of sort.Interface.
+func (s sortedVoices) Len() int {
+	return len(s)
+}
+
+// Swap is part of sort.Interface.
+func (s sortedVoices) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+// Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
+func (s sortedVoices) Less(i, j int) bool {
+	var strs sort.StringSlice = []string{
+		s[i].instrument.Name(),
+		s[j].instrument.Name(),
+	}
+
+	return strs.Less(0, 1)
+	// sort.Strings(a)
+
+}
+
 // raster is, how many ticks will equal to 3 chars width
 func (t *Track) print(tempo Tempo, unit string, wr io.Writer) {
 	raster := int(tempo.MilliSecs(M(unit)))
@@ -219,7 +244,16 @@ func (t *Track) print(tempo Tempo, unit string, wr io.Writer) {
 		voiceLines[ev.Voice] = eventMap
 	}
 
-	for _, evts := range voiceLines {
+	// sort to have always the same print order
+	sortVoic := sortedVoices{}
+	for voc, _ := range voiceLines {
+		sortVoic = append(sortVoic, voc)
+	}
+
+	sort.Sort(sortVoic)
+
+	for _, voc := range sortVoic {
+		evts := voiceLines[voc]
 		tick := int(0)
 		placeholder := " "
 		sortedTickKeys := []int{}
@@ -260,7 +294,8 @@ func (t *Track) print(tempo Tempo, unit string, wr io.Writer) {
 			switch ev.type_ {
 			case "ON":
 				//fmt.Print("<")
-				fmt.Fprintf(wr, "%v-", ev.Params.Params()["note"])
+
+				fmt.Fprintf(wr, "%v-", note.FreqToNote(ev.Params.Params()["freq"]))
 				// fmt.Print(ev.FinalParams()["note"])
 				placeholder = "-"
 			case "OFF":
@@ -279,6 +314,7 @@ func (t *Track) print(tempo Tempo, unit string, wr io.Writer) {
 
 		fmt.Fprint(wr, "\n")
 		// fmt.Print("\n")
+
 	}
 
 }

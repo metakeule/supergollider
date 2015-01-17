@@ -43,7 +43,7 @@ func pitches(dir, file string) map[float64]float64 {
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
-		return
+		return res
 	}
 
 	for _, pair := range strings.Split(string(out), "\n") {
@@ -63,6 +63,7 @@ func pitches(dir, file string) map[float64]float64 {
 			res[pos] = freq
 		}
 	}
+	return res
 }
 
 func onsets(dir, file string) []float64 {
@@ -71,7 +72,7 @@ func onsets(dir, file string) []float64 {
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
-		return
+		return res
 	}
 
 	for _, pos_s := range strings.Split(string(out), "\n") {

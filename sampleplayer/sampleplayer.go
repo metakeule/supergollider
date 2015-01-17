@@ -159,7 +159,7 @@ func CalculatePhilharmonicFreq(s string) float64 {
 	case "B":
 		midiBase = note.B4
 	}
-	return note.MidiCps(float64((i-4)*12) + float64(midiBase))
+	return note.MidiToFreq(float64((i-4)*12) + float64(midiBase))
 }
 
 var Long = supergollider.Dur(1000)
