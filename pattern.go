@@ -6,19 +6,10 @@ import (
 	"time"
 )
 
-/*
 type Pattern interface {
-	Pattern(Tracker)
-}
-*/
-
-type Pattern interface {
-	//Events(barNum int, barMeasure Measure) map[Measure][]*Event
 	Events(barNum int, t Tracker) map[Measure][]*Event
 	NumBars() int
 }
-
-//type PatternFunc func(Tracker)
 
 type PatternFunc func(barNum int, t Tracker) map[Measure][]*Event
 
@@ -29,12 +20,6 @@ func (tf PatternFunc) Events(barNum int, t Tracker) map[Measure][]*Event {
 func (tf PatternFunc) NumBars() int {
 	return 1
 }
-
-/*
-func (tf PatternFunc) Pattern(tr Tracker) {
-	tf(tr)
-}
-*/
 
 /*
 type seqModTrafo struct {
@@ -135,7 +120,6 @@ func (e End) NumBars() int {
 	return 1
 }
 
-// var End = end{}
 type End string
 
 type Start string
@@ -150,7 +134,6 @@ func (s Start) NumBars() int {
 	return 1
 }
 
-// var Start = begin{}
 /*
 type stopAll struct {
 	pos    Measure
@@ -241,12 +224,6 @@ func (r randomPattern) Events(barNum int, t Tracker) map[Measure][]*Event {
 func (r randomPattern) NumBars() int {
 	return r[0].NumBars()
 }
-
-/*
-func (r randomPattern) Pattern(t Tracker) {
-	r[rand.Intn(len(r))].Pattern(t)
-}
-*/
 
 // each pattern must have the same NumBars
 func RandomPattern(patterns ...Pattern) Pattern {

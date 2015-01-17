@@ -154,17 +154,6 @@ func SetBPM(pos string, bpm float64) *setBpm {
 
 type EventGenerator func(v *Voice, params ...Parameter) *Event
 
-/*
-func ExecEvent(v *Voice, fn func(e *Event), params ...Parameter) *Event {
-	return &Event{
-		Voice:  v,
-		Params: Params(params...),
-		runner: fn,
-		Type:   "EXEC",
-	}
-}
-*/
-
 // returns a Pattern for an event func at a certain position
 func EventFuncPattern(pos string, fn func(e *Event)) Pattern {
 	return PatternFunc(func(barNum int, t Tracker) map[Measure][]*Event {

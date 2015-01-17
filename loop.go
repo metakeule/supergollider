@@ -16,11 +16,6 @@ func Loop(patterns ...Pattern) *loop {
 	return l
 }
 
-/*
-func (l *loop) TrackLoop(name string) *TrackLoop {
-	return &TrackLoop{loop: l, Name: name}
-}
-*/
 func (l *loop) TrackLoop() *TrackLoop {
 	return &TrackLoop{loop: l}
 }
