@@ -14,7 +14,7 @@ func TestLoop(t *testing.T) {
 		instr.Play("1/4", Freq(440)),
 	)
 
-	events := st.Track("4/4", BPM(120)).SetLoop("x", "0", l).Start().Fill(2).Events
+	events := st.Track("4/4", BPM(120)).SetLoop("x", l).Start().Fill(2).Events
 
 	es := eventsSorted(events)
 	sort.Sort(es)
@@ -63,9 +63,9 @@ func TestLoopOfLoops(t *testing.T) {
 		instr.Play("1/4", Freq(880)),
 	)
 
-	l := SeqLoop(SeqLoop(l1, l1), l2)
+	l := Loop(SeqPatterns(l1, l1, l2))
 
-	events := st.Track("4/4", BPM(120)).SetLoop("x", "0", l).Start().Fill(3).Events
+	events := st.Track("4/4", BPM(120)).SetLoop("x", l).Start().Fill(3).Events
 
 	es := eventsSorted(events)
 	sort.Sort(es)
@@ -114,7 +114,7 @@ func TestLoopWithBarChange(t *testing.T) {
 		instr.Play("2/8", Freq(660)),
 	)
 
-	events := st.Track("4/4", BPM(120)).SetLoop("x", "0", l).Start().Fill(2).Events
+	events := st.Track("4/4", BPM(120)).SetLoop("x", l).Start().Fill(2).Events
 
 	es := eventsSorted(events)
 	sort.Sort(es)
@@ -123,12 +123,6 @@ func TestLoopWithBarChange(t *testing.T) {
 	if len(es) != 6 {
 		t.Fatalf("wrong number of events; is %d, must be 6", len(es))
 	}
-
-	/*
-		for _, ev := range es {
-			fmt.Println(ev.absPosition, ev.Params)
-		}
-	*/
 
 	type result struct {
 		position  Measure
