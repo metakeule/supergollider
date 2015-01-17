@@ -104,3 +104,32 @@ func TestBarChange(t *testing.T) {
 		t.Errorf("expecting %d, got %v", fac*9, tr.Events[4].tick)
 	}
 }
+
+func TestBarOverflow(t *testing.T) {
+	var v1 *Voice
+	tr := newTrack(BPM(120), M("4/4"))
+	tr.At(M("0"), OnEvent(v1, note.A2))
+	tr.At(M("1/4"), OffEvent(v1))
+	tr.At(M("4/4"), OnEvent(v1, note.A2))
+	tr.At(M("6/4"), OffEvent(v1))
+
+	tr.compile()
+
+	fac := uint(500000000)
+
+	if tr.Events[0].tick != 0 {
+		t.Errorf("expecting 0, got %v", tr.Events[0].tick)
+	}
+
+	if tr.Events[1].tick != fac {
+		t.Errorf("expecting %d, got %v", fac, tr.Events[1].tick)
+	}
+
+	if tr.Events[2].tick != fac*4 {
+		t.Errorf("expecting %d, got %v", fac*4, tr.Events[2].tick)
+	}
+
+	if tr.Events[3].tick != fac*6 {
+		t.Errorf("expecting %d, got %v", fac*6, tr.Events[2].tick)
+	}
+}
