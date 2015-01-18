@@ -36,31 +36,22 @@ type Tempo interface {
 type BPM float64
 
 func (b BPM) Event() *Event {
-	return &Event{
-		Params: Param("bpm", float64(b)),
-		type_:  "TEMPO_CHANGE",
-	}
+	return &Event{Params: b, type_: "TEMPO_CHANGE"}
 }
 
 type setBpm struct {
 	pos Measure
-	bpm float64
+	bpm BPM
 }
 
 func (s *setBpm) Events(barNum int, t Tracker) map[Measure][]*Event {
-	return map[Measure][]*Event{
-		s.pos: []*Event{
-			BPM(s.bpm).Event(),
-		},
-	}
+	return map[Measure][]*Event{s.pos: {s.bpm.Event()}}
 }
 
-func (s *setBpm) NumBars() int {
-	return 1
-}
+func (s *setBpm) NumBars() int { return 1 }
 
 func (b BPM) Pattern(pos string) Pattern {
-	return &setBpm{M(pos), float64(b)}
+	return &setBpm{M(pos), b}
 }
 
 func (b BPM) Params() map[string]float64 {

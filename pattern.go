@@ -464,7 +464,7 @@ func (l *linearDistribute) modifyTempo(position string) Pattern {
 	pos := M(position)
 	for i := 0; i < l.steps; i++ {
 		// println(pos.String())
-		p = append(p, &setBpm{pos, val})
+		p = append(p, &setBpm{pos, BPM(val)})
 		// tr.At(pos, ChangeEvent(ld.v, ParamsMap(map[string]float64{ld.linearDistribute.key: val})))
 		pos += width
 		val += diff
@@ -550,7 +550,7 @@ func (l *expDistribute) modifyTempo(position string) Pattern {
 	pos := M(position)
 	for i := 0; i < l.steps; i++ {
 		// println(pos.String())
-		p = append(p, &setBpm{pos, diffs[i]})
+		p = append(p, &setBpm{pos, BPM(diffs[i])})
 		// tr.At(pos, ChangeEvent(ld.v, ParamsMap(map[string]float64{ld.linearDistribute.key: val})))
 		pos += width
 		// val += diff
