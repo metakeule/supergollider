@@ -63,6 +63,10 @@ func (b BPM) Pattern(pos string) Pattern {
 	return &setBpm{M(pos), float64(b)}
 }
 
+func (b BPM) Params() map[string]float64 {
+	return map[string]float64{"bpm": float64(b)}
+}
+
 func (b BPM) BPM() float64 {
 	return float64(b)
 }
