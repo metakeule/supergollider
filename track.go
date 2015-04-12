@@ -392,15 +392,17 @@ func (t *Track) BarNum() int {
 }
 
 //func (t *Track) TempoAt(pos string, tempo Tempo) {
-/*
-func (t *Track) setTempo(pos Measure, tempo Tempo) {
+
+func (t *Track) SetTempo(pos Measure, tempo Tempo) {
 	num, posInLast := t.CurrentBar().Add(pos)
 	abs := t.absPos + Measure(num)*t.CurrentBar() + posInLast
 	tempAt := tempoAt{AbsPos: abs, Tempo: tempo}
-	fmt.Printf("set tempo to: %v at %v\n", tempo, tempAt.AbsPos)
+	// fmt.Printf("set tempo to: %v at %v\n", tempo, tempAt.AbsPos)
 	t.tempi = append(t.tempi, tempAt)
 }
-*/
+
+/*
+ */
 
 func (t *Track) At(pos Measure, events ...*Event) {
 	num, posInLast := t.CurrentBar().Add(pos)

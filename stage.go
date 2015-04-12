@@ -524,6 +524,7 @@ func (s *Stage) checkForScServer() {
 }
 
 func (s *Stage) mkOSCFile(libraryPath, sclangCodeFile string) (ok bool) {
+	// fmt.Printf("sclang -r -s -l %s %s\n", libraryPath, sclangCodeFile)
 	cmd := exec.Command(
 		"sclang",
 		"-r",
@@ -583,7 +584,7 @@ func (s *Stage) mkAudiofile(oscCodeFile, audioFile string, exportFloat bool) (ok
 	if exportFloat {
 		format = "float"
 	}
-
+	// fmt.Printf("scsynth -N %s _ %s 96000 AIFF %s -o 2\n", oscCodeFile, audioFile, format)
 	cmd := exec.Command(
 		"scsynth",
 		"-N",
@@ -617,7 +618,7 @@ func playFile(audioFile string, skipSecs float32) (ok bool) {
 	// cmd = exec.Command("aplay", "-f", "FLOAT_BE", "-c2", "--rate=96000", audioFile)
 	//cmd = exec.Command("aplay", "-f", "S32_BE", "-c2", "--rate=48000", audioFile)
 	// -f S16_BE -c2 -f44100
-
+	// fmt.Printf("play -q %s trim %s\n", audioFile, fmt.Sprintf(`%0.6f`, skipSecs))
 	cmd := exec.Command(
 		"play",
 		"-q",

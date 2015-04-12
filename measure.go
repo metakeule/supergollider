@@ -93,6 +93,38 @@ func (m Measure) String() string {
 	return convertMeasure(m)
 }
 
+// Scale factors proportions like [1,3,1]
+// based on a given total like 10 to values like [2,6,2]
+func scale(total float64, relations ...float64) []float64 {
+
+	var sum float64
+	for _, val := range relations {
+		sum += val
+	}
+
+	factor := total / sum
+
+	res := make([]float64, len(relations))
+
+	for i, val := range relations {
+		res[i] = factor * val
+	}
+
+	return res
+}
+
+func (total Measure) Scale(relations ...float64) []Measure {
+	totalf := float64(int(total))
+	resf := scale(totalf, relations...)
+	res := make([]Measure, len(resf))
+
+	for i, r := range resf {
+		res[i] = Measure(int(FloatToInt(r)))
+	}
+
+	return res
+}
+
 // measure via string
 //func m_(s string) Measure {
 func m_(s string) float64 {

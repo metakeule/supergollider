@@ -11,6 +11,112 @@ type Pattern interface {
 	NumBars() int
 }
 
+type slotPattern struct {
+	relations  []float64
+	factor     float64
+	subtrahend Measure
+	events     []interface{}
+}
+
+// SlotPattern creates slots by scaling the given relations to the current Bar of the used tracker.
+// The slots are Measure positions on which the given events are positioned.
+// Each of events may be *Event or []*Event
+// If len(relations) < len(events), the positions of the events will rotate through the slots
+// The scaling factor can be customized by calling Multiply. This way a positive factor of the
+// current Bar can be set instead of the default which is 1. Additionally the resulting may be
+// moved be substracting a constant measure to all or them, which can be set via Substract
+func SlotPattern(relations []float64, events ...interface{}) *slotPattern {
+
+	for _, x := range events {
+		switch x.(type) {
+		case *Event, []*Event:
+		default:
+			panic(fmt.Sprintf("type %T not allowed as event in SlotPatterns, just *Event and []*Event", x))
+		}
+	}
+
+	return &slotPattern{relations: relations, factor: 1, events: events}
+}
+
+func (sp *slotPattern) Multiply(factor float64) *slotPattern {
+	if factor <= 0 {
+		panic("factor <= 0 not allowed")
+	}
+
+	sp.factor = factor
+	return sp
+}
+
+func (sp *slotPattern) Substract(measure string) *slotPattern {
+	sp.subtrahend = M(measure)
+	return sp
+}
+
+func (sp *slotPattern) Events(barNum int, t Tracker) map[Measure][]*Event {
+	var base = t.CurrentBar()
+
+	if sp.factor > 0 && sp.factor != 1 {
+		base = Measure(FloatToInt(float64(int(base)) * sp.factor))
+	}
+
+	ms := base.Scale(sp.relations...)
+	res := map[Measure][]*Event{}
+	for i, x := range sp.events {
+		var evts []*Event
+		switch ev := x.(type) {
+		case *Event:
+			evts = []*Event{ev}
+		case []*Event:
+			evts = ev
+		}
+		res[ms[len(ms)%i]-sp.subtrahend] = evts
+	}
+
+	return res
+}
+
+func (sp *slotPattern) NumBars() int {
+	return 1
+}
+
+/*
+type slotPattern struct {
+	relations   []Measure
+	events  []*Event
+	i       int
+	numBars int
+	res     map[int]map[Measure][]*Event
+}
+
+func SlotPattern(relations []Measure, events ...*Event) Pattern {
+	s := &slotPattern{relations, events}
+	s.calculate()
+	return s
+}
+
+func (s *slotPattern) calculate(t Tracker) {
+	s.res = map[int]map[Measure][]*Event{}
+
+	sumstr := "0"
+
+	for _, sl := range s.relations {
+		sumstr += " + " + sl.String()
+	}
+
+	numBars, _ := t.CurrentBar().Add(M(sumstr))
+	numBars++
+}
+
+func (s *slotPattern) Events(barNum int, t Tracker) map[Measure][]*Event {
+	return s.res[barNum]
+}
+
+func (s *slotPattern) NumBars() int {
+	//return s.numBars
+	return 1
+}
+*/
+
 type PatternFunc func(barNum int, t Tracker) map[Measure][]*Event
 
 func (tf PatternFunc) Events(barNum int, t Tracker) map[Measure][]*Event {
@@ -157,7 +263,6 @@ func (p *stopAll) Pattern(t Tracker) {
 }
 */
 
-/*
 type setTempo struct {
 	Tempo Tempo
 	Pos   Measure
@@ -168,10 +273,24 @@ func SetTempo(at string, t Tempo) *setTempo {
 }
 
 // Tracker must be a *Track
+/*
 func (s *setTempo) Pattern(t Tracker) {
 	t.(*Track).SetTempo(s.Pos, s.Tempo)
 }
 */
+
+func (s *setTempo) Events(barNum int, t Tracker) map[Measure][]*Event {
+	return map[Measure][]*Event{
+		s.Pos: []*Event{BPM(s.Tempo.BPM()).Event()},
+	}
+}
+
+func (s *setTempo) NumBars() int {
+	return 1
+}
+
+/*
+ */
 
 /*
 type times struct {
