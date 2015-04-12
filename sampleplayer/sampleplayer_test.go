@@ -37,8 +37,8 @@ func TestDynMapper(t *testing.T) {
 }
 
 func TestScanner(t *testing.T) {
-	sc := NewPhilharmonicScanner()
-	sc.ScanDir("/media/usb0/philharmonic-orchestra/violin/")
+	sc := NewPhilharmonicScanner("/media/benny/sounds/philharmonic-orchestra/")
+	sc.ScanDir("violin")
 }
 
 func TestAmpMapperEmpty(t *testing.T) {
