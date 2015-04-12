@@ -5,7 +5,7 @@ import "github.com/metakeule/supergollider/note"
 import "github.com/metakeule/supergollider"
 
 type Scale interface {
-	Degree(degree int) supergollider.Parameter
+	Degree(degree int) note.Note
 	Base() note.Note
 }
 
@@ -38,7 +38,7 @@ type Chromatic struct {
 	A8 (a''''')           117
 */
 
-func (s *Chromatic) Degree(scalePosition int) supergollider.Parameter {
+func (s *Chromatic) Degree(scalePosition int) note.Note {
 	return note.Note(float64(s.BaseNote) + float64(scalePosition))
 	//return note.MidiCps(float64(s.BaseNote) + float64(scalePosition))
 }
@@ -58,7 +58,7 @@ func (s *Periodic) Base() note.Note {
 }
 
 // TODO: test it
-func (s *Periodic) Degree(scalePosition int) supergollider.Parameter {
+func (s *Periodic) Degree(scalePosition int) note.Note {
 	// we need to calculate the position in terms of the chromatic scale
 	// and then we return the frequency via MidiCps
 	num := len(s.Steps)
@@ -221,7 +221,7 @@ type seq struct {
 	current int
 }
 
-func (s *seq) Degree(degree int) supergollider.Parameter {
+func (s *seq) Degree(degree int) note.Note {
 	return s.Scales[s.current].Degree(degree)
 }
 
