@@ -1,10 +1,16 @@
 package supergollider
 
-import "strconv"
+import (
+	"strconv"
+)
 
-// stolen from https://groups.google.com/forum/#!topic/golang-nuts/ITZV08gAugI
-func RoundFloat(x float64, prec int) float64 {
-	frep := strconv.FormatFloat(x, 'g', prec, 64)
+func FloatToInt(x float64) int {
+	return int(RoundFloat(x, 0))
+}
+
+// RoundFloat rounds the given float by the given decimals after the dot
+func RoundFloat(x float64, decimals int) float64 {
+	frep := strconv.FormatFloat(x, 'f', decimals, 64)
 	f, _ := strconv.ParseFloat(frep, 64)
 	return f
 }

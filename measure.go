@@ -129,7 +129,7 @@ func _M(s string) float64 {
 }
 
 func M(s string) Measure {
-	return Measure(int(_M(s)))
+	return Measure(FloatToInt(_M(s)))
 }
 
 /*
