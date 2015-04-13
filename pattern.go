@@ -12,64 +12,114 @@ type Pattern interface {
 }
 
 type slotPattern struct {
-	relations  []float64
-	factor     float64
-	subtrahend Measure
-	events     []interface{}
+	relations []float64
+	//factor     float64
+	base   string
+	events []interface{}
+	at     Measure
 }
 
 // SlotPattern creates slots by scaling the given relations to the current Bar of the used tracker.
-// The slots are Measure positions on which the given events are positioned.
+// The slots are Measure positions on which the events that are passed via SetEvents() are positioned.
 // Each of events may be *Event or []*Event
-// If len(relations) < len(events), the positions of the events will rotate through the slots
-// The scaling factor can be customized by calling Multiply. This way a positive factor of the
-// current Bar can be set instead of the default which is 1. Additionally the resulting may be
-// moved be substracting a constant measure to all or them, which can be set via Substract
-func SlotPattern(relations []float64, events ...interface{}) *slotPattern {
+// If len(relations) < len(events), the positions of the events will rotate through the slots.
+// If len(events) < len(relations), the events will rotate through the slot positions.
+// The scaling base can be customized by calling SetBase(). The default base is the current Bar.
+// The pattern by default starts at position 0 inside the bar, but that could be changed by calling At()
+func SlotPattern(relations ...float64) *slotPattern {
+	return &slotPattern{relations: relations}
+}
 
+func (sp *slotPattern) SetEvents(events ...interface{}) *slotPattern {
 	for _, x := range events {
 		switch x.(type) {
 		case *Event, []*Event:
 		default:
-			panic(fmt.Sprintf("type %T not allowed as event in SlotPatterns, just *Event and []*Event", x))
+			if x != nil {
+				panic(fmt.Sprintf("type %T not allowed as event in SlotPatterns, just *Event and []*Event", x))
+			}
 		}
 	}
-
-	return &slotPattern{relations: relations, factor: 1, events: events}
-}
-
-func (sp *slotPattern) Multiply(factor float64) *slotPattern {
-	if factor <= 0 {
-		panic("factor <= 0 not allowed")
-	}
-
-	sp.factor = factor
+	sp.events = events
 	return sp
 }
 
-func (sp *slotPattern) Substract(measure string) *slotPattern {
-	sp.subtrahend = M(measure)
+func (sp *slotPattern) Clone() *slotPattern {
+	return &slotPattern{
+		relations: sp.relations,
+		base:      sp.base,
+		events:    sp.events,
+		at:        sp.at,
+	}
+}
+
+func (sp *slotPattern) SetBase(base string) *slotPattern {
+	sp.base = base
+	return sp
+}
+
+func (sp *slotPattern) At(m string) *slotPattern {
+	sp.at = M(m)
 	return sp
 }
 
 func (sp *slotPattern) Events(barNum int, t Tracker) map[Measure][]*Event {
 	var base = t.CurrentBar()
 
-	if sp.factor > 0 && sp.factor != 1 {
-		base = Measure(FloatToInt(float64(int(base)) * sp.factor))
+	if sp.base != "" {
+		base = M(sp.base)
 	}
 
 	ms := base.Scale(sp.relations...)
 	res := map[Measure][]*Event{}
-	for i, x := range sp.events {
-		var evts []*Event
-		switch ev := x.(type) {
-		case *Event:
-			evts = []*Event{ev}
-		case []*Event:
-			evts = ev
+	last := -ms[0] + sp.at
+
+	// fmt.Fprintf(Debug, "\n")
+
+	if len(sp.events) >= len(ms) {
+		// var last Measure
+		for i, x := range sp.events {
+			var evts []*Event
+
+			if x != nil {
+				switch ev := x.(type) {
+				case *Event:
+					evts = []*Event{ev.Clone()}
+				case []*Event:
+					evts = make([]*Event, len(ev))
+					for j, e := range ev {
+						evts[j] = e.Clone()
+					}
+				}
+
+				last = ms[i%len(ms)] + last
+				// fmt.Fprintf(Debug, "%s » ", last)
+				res[last] = evts
+			}
 		}
-		res[ms[len(ms)%i]-sp.subtrahend] = evts
+
+		return res
+	}
+
+	// var last Measure
+	for i, m := range ms {
+		x := sp.events[i%len(sp.events)]
+
+		if x != nil {
+			var evts []*Event
+			switch ev := x.(type) {
+			case *Event:
+				evts = []*Event{ev.Clone()}
+			case []*Event:
+				evts = make([]*Event, len(ev))
+				for j, e := range ev {
+					evts[j] = e.Clone()
+				}
+			}
+			last = m + last
+			// fmt.Fprintf(Debug, "%s | ", last)
+			res[last] = evts
+		}
 	}
 
 	return res
