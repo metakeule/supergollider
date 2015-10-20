@@ -5,6 +5,7 @@ package supergollider
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -352,7 +353,7 @@ func (v *Voice) paramsStr(params map[string]float64) string {
 
 	for k, v := range params {
 		if k[0] != '_' {
-			fmt.Fprintf(&buf, `, \%s, %v`, k, float32(v))
+			fmt.Fprintf(&buf, `, \%s, %s`, k, strconv.FormatFloat(v, 'f', -1, 32)) //  float32(v))
 		}
 	}
 
@@ -390,7 +391,9 @@ func (v *Voice) getCode(ev *Event) string {
 	res := ""
 	switch ev.type_ {
 	case "FREE":
-		return fmt.Sprintf(`, [\n_free, %d]`, ev.reference.synthID)
+		// [\n_set, 2002, \gate, -0.0000001]
+		// return fmt.Sprintf(`, [\n_free, %d]`, ev.reference.synthID)
+		return fmt.Sprintf(`, [\n_set, %d, \gate, -0.0000001]`, ev.reference.synthID)
 	case "CUSTOM":
 		// fmt.Println("running custom event")
 		//ev.Runner(ev)
@@ -744,7 +747,7 @@ func (v *Voice) OffEvent(ev *Event) {
 	// v.lastInstrumentSample = nil
 	//fmt.Fprintf(&ev.sccode, `, [\n_set, %d, \gate, -1]`, v.scnode)
 	//fmt.Fprintf(&ev.sccode, `, [\n_set, ##NODE##, \gate, -1]`)
-	fmt.Fprintf(&ev.sccode, `, [\n_set, ##NODE##, \gate, 0]`)
+	fmt.Fprintf(&ev.sccode, `, [\n_set, ##NODE##, \gate, -0.0000001]`)
 }
 
 type codeLoader interface {

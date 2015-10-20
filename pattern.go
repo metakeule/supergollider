@@ -44,6 +44,58 @@ func (sp *slotPattern) SetEvents(events ...interface{}) *slotPattern {
 	return sp
 }
 
+// SetEventsAt sets the events at a certain slot index
+func (sp *slotPattern) SetEventsAt(idx int, evts ...*Event) *slotPattern {
+	for len(sp.events) < idx+1 {
+		sp.events = append(sp.events, nil)
+	}
+	sp.events[idx] = evts
+	return sp
+}
+
+func (sp *slotPattern) MapEvents(m map[int]interface{}) *slotPattern {
+
+	for idx, x := range m {
+		switch e := x.(type) {
+		case *Event:
+			sp.SetEventsAt(idx, e)
+		case []*Event:
+			sp.SetEventsAt(idx, e...)
+		}
+	}
+
+	return sp
+}
+
+func (sp *slotPattern) ChangeEventsAt(idx int, fn func(evts ...*Event)) *slotPattern {
+	x := sp.events[idx%len(sp.events)]
+
+	switch e := x.(type) {
+	case *Event:
+		fn(e)
+	case []*Event:
+		fn(e...)
+	default:
+	}
+
+	return sp
+}
+
+func (sp *slotPattern) ChangeAllEvents(fn func(idx int, evts ...*Event)) *slotPattern {
+
+	for i, x := range sp.events {
+		switch e := x.(type) {
+		case *Event:
+			fn(i, e)
+		case []*Event:
+			fn(i, e...)
+		default:
+		}
+	}
+
+	return sp
+}
+
 func (sp *slotPattern) Clone() *slotPattern {
 	return &slotPattern{
 		relations: sp.relations,

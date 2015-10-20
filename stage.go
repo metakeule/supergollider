@@ -171,11 +171,38 @@ func (s *Stage) writeSynthDefs(w io.Writer) {
 // Out.ar(out, Pan2.ar(z, pos: pan, level: amp));
 // z =  EnvGen.kr(Env.adsr(attac,release,1),gate) * PlayBuf.ar(%d, bufnum, BufRateScale.kr(bufnum) * rate, loop: 0, doneAction: 2);
 
+/*
 var sampleSynthDef = `SynthDef("sample%d", { |attac=0.0000005, release=0.0000005, gate=1,bufnum = 0,amp=1, out=0, pan=0, rate=1| var z;
 	z =  EnvGen.kr(Env([0, 1, 0], [attac,release],\linear, releaseNode: 1),gate) * PlayBuf.ar(%d, bufnum, BufRateScale.kr(bufnum) * rate, loop: 0, doneAction: 2);
 	FreeSelfWhenDone.kr(z);
 	Out.ar(out, Pan2.ar(z, pos: pan, level: amp));
 } ).writeDefFile;`
+*/
+
+var sampleSynthDef = `SynthDef("sample%d", { |attack=0.0000005, release=0.03, gate=1, bufnum=0, amp=1, out=0, pan=0, rate=1, skip=0, curve= -4 |
+    var env;
+		var play;
+		var res;
+
+		env  =  EnvGen.kr(Env.asr(attackTime: attack, sustainLevel: 1, releaseTime: release, curve: curve), gate, timeScale: rate);
+		play = PlayBuf.ar(%d, bufnum, BufRateScale.kr(bufnum) * rate, loop: 0, startPos:  skip, doneAction: 2);
+    res  = env * play;
+		FreeSelfWhenDone.kr(res);
+    Out.ar(out, Pan2.ar(res, pos: pan, level: amp));
+}).writeDefFile;`
+
+/*
+var sampleSynthDef = `SynthDef("sample%d", { |attac=0.0000005, release=0.0000005, releasenode=1, length=1, gate=1,bufnum = 0,amp=1, out=0, pan=0, rate=1,skip=0| var z;
+	z =  EnvGen.kr(Env([0, 1, 0], [attac,length,release],\linear, releaseNode: releasenode,doneAction: 2),gate) * PlayBuf.ar(%d, bufnum, BufRateScale.kr(bufnum) * rate, loop: 0, startPos: skip);
+	FreeSelfWhenDone.kr(z);
+	Out.ar(out, Pan2.ar(z, pos: pan, level: amp));
+} ).writeDefFile;`
+*/
+/*
+var sampleSynthDef = `SynthDef("sample%d", { |gate=1,bufnum = 0,out=0, pan=0, rate=1,amp=1|
+	Out.ar(out, Pan2.ar(PlayBuf.ar(%d, bufnum, rate, loop: 0, doneAction: 2), pos: pan, level: amp));
+} ).writeDefFile;`
+*/
 
 func (s *Stage) writeLoadSamples(w io.Writer) {
 	channelPlayers := map[uint]struct{}{}
