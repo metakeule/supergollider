@@ -10,7 +10,7 @@ import (
 // stolen from https://groups.google.com/forum/?fromgroups=#!topic/golang-nuts/ITZV08gAugI
 // return rounded version of x with prec precision.
 func roundViaFloat(x float64, prec int) float64 {
-	frep := strconv.FormatFloat(x, 'g', prec, 64)
+	frep := strconv.FormatFloat(x, 'f', prec, 64)
 	f, _ := strconv.ParseFloat(frep, 64)
 	return f
 }
